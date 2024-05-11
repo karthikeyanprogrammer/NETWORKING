@@ -2,7 +2,7 @@ import socket
 import threading
 import tkinter as tk
 header_len=64
-port=5050
+port=5650
 server_ip=socket.gethostbyname(socket.gethostname())
 server_addr=(server_ip,port)
 format='utf-8'
@@ -19,12 +19,14 @@ def handle_client(client,client_addr):
     while connected:
         msg=client.recv(header_len).decode(format)
         if msg:
+            msg=int(msg)
+            msg=client.recv(msg).decode(format)
             if msg==disconnect_msg:
                 connected=False
             else:
                 for c,ca in clients.items():
                     if ca!=client_addr:
-                        client.send(msg)
+                        client.send(msg.encode(format))
                         print(f'>> MESSAGE FROM [{client_addr}] HAS BEEN DIDTRIBUTED TO CLIENTS\n')
     client.close()
     del clients[client]
@@ -39,3 +41,4 @@ def start():
         thread.start()
 
 print(F'>> STARTING SERVER AT PORT [{port}], IP [{server_ip}] ...\n')
+start()
